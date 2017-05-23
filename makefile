@@ -1,4 +1,4 @@
-np=4
+np=1
 size=50000000
 source=mergeSort.c
 exe=mpiExe
@@ -6,6 +6,7 @@ print=0
 
 clog:
 	rm -f res_np*
+	rm -f slurm*
 clean:
 	rm -f $(exe)
 	rm -f gen
