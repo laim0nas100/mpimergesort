@@ -1,5 +1,5 @@
 np=4
-size=10
+size=50000000
 source=mergeSort.c
 exe=mpiExe
 print=0
