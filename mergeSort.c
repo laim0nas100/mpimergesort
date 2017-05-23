@@ -64,11 +64,11 @@ int exists(const char *fname){
 
 void mergeArrays(int *a, int *b,int *c, int aSize, int bSize){
   int fullSize = aSize + bSize;
-  int i,j;
+  int i,j,k;
   i = 0;
   j = 0;
   
-  for(int k = 0; k < fullSize; i++){
+  for(k = 0; k < fullSize; i++){
     if(i < aSize){
       if(j < bSize){
         if (a[i] < b[j]){
