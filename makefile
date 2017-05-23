@@ -2,19 +2,18 @@ np=4
 size=10
 source=mergeSort.c
 exe=mpiExe
-print=1
+print=0
 
 clog:
 	rm -f res_np*
 clean:
 	rm -f $(exe)
-	
+	rm -f gen
 all: clean
 	mpicc -o $(exe) $(source)
-	
+	gcc -o gen generate.c
 run: all
 	mpirun -np $(np) $(exe) $(size) $(print)
-	
 
 		
 	
