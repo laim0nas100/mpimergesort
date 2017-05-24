@@ -122,48 +122,48 @@ int main(int argc, char** argv) {
   }
 
   // Initialize MPI
-  int world_rank;
-  int world_size;
+  int worldRank;
+  int worldSize;
 
   MPI_Init(NULL, NULL);
-  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
+  MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
 
   // Divide the array in equal-sized chunks 
-  int size = n/world_size;
+  int size = n/worldSize;
 
   // Send each subarray to each process 
   int *subArray = malloc(size * sizeof(int));
   MPI_Scatter(originalArray, size, MPI_INT, subArray, size, MPI_INT, 0, MPI_COMM_WORLD);
-  if(world_rank == 0){
+  if(worldRank == 0){
     startTime = (float)clock()/CLOCKS_PER_SEC;
   }
   
   // Perform the mergesort on each process 
   int *tmpArray = malloc(size * sizeof(int));
   mergeSort(subArray, tmpArray, 0, (size - 1));
-  printf("Finished %d\n",world_rank);
+  printf("Finished %d\n",worldRank);
   
   // Gather the sorted subarrays into one 
   int *sorted = NULL;
-  if(world_rank == 0) {
+  if(worldRank == 0) {
     sorted = malloc(n * sizeof(int));
   }
   MPI_Gather(subArray, size, MPI_INT, sorted, size, MPI_INT, 0, MPI_COMM_WORLD);
 	
   // Make the final mergeSort call 
-  if(world_rank == 0) {
+  if(worldRank == 0) {
     int *otherArray = malloc(n * sizeof(int));
     mergeSort(sorted, otherArray, 0, (n - 1));
 
-    if(world_rank == 0){
+    if(worldRank == 0){
       float timeElapsed = (float)clock()/CLOCKS_PER_SEC - startTime;
       char* filePath = "result";
-      printf("world size %d\n",world_size);
+      printf("world size %d\n",worldSize);
       int suffix = 0;
       while(1){
         char newFilePath[50];
-        sprintf(newFilePath,"res_np%d_%d.txt",world_size,suffix);
+        sprintf(newFilePath,"res_np%d_%d.txt",worldSize,suffix);
         if(!exists(newFilePath)){
           printf("new path = %s",newFilePath);
           filePath = newFilePath;
@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
         
       }
       FILE *f = fopen(filePath,"w");
-      fprintf(f,"Number of proccesses: %d\n",world_size);
+      fprintf(f,"Number of proccesses: %d\n",worldSize);
       fprintf(f,"Size: %d\n",n);
       fprintf(f,"Time: %f \n\n",timeElapsed);
       if(print){

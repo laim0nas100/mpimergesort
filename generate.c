@@ -7,8 +7,7 @@ int main(int argc, char** argv) {
   
   fprintf(f,"#!/bin/sh \n");
   fprintf(f,"#SBATCH -p short\n");
-  fprintf(f,"#SBATCH -N%d\n",computerCount);
-  fprintf(f,"#SBATCH -c%d\n",procCount);
+  fprintf(f,"#SBATCH -n%d\n",computerCount);
   char* cluster = "alpha";
   if(argc == 4){
     cluster = argv[3];
