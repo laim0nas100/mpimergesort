@@ -11,30 +11,26 @@ void merge(int *a, int *b, int l, int m, int r) {
   h = l;
   i = l;
   j = m + 1;
-
   while((h <= m) && (j <= r)) {
     if(a[h] <= a[j]) {
-      b[i] = a[h];
-      h++;
+      b[i] = a[h++];
     }
     else {
-      b[i] = a[j];
-      j++;
+      b[i] = a[j++];
     }
     i++;
   }
-  if(m < h) {
-    for(k = j; k <= r; k++) {
-      b[i] = a[k];
-      i++;
-    }
+  
+  //whats left
+  k = h;
+  if(m < h){
+    m = r;
+    k = j;
   }
-  else {
-    for(k = h; k <= m; k++) {
-      b[i] = a[k];
-      i++;
-    }
+  while(k <= m){
+    b[i++] = a[k++];
   }
+  
   for(k = l; k <= r; k++) {
     a[k] = b[k];
   }
@@ -62,50 +58,6 @@ int exists(const char *fname){
     return 0;
 }
 
-void mergeArrays(int *a, int *b,int *c, int aSize, int bSize){
-  int fullSize = aSize + bSize;
-  int i,j,k;
-  i = 0;
-  j = 0;
-  
-  for(k = 0; k < fullSize; i++){
-    if(i < aSize){
-      if(j < bSize){
-        if (a[i] < b[j]){
-          c[k] = a[i++];
-        }
-        else{
-          c[k] = b[j++];
-        }
-      }
-      else{
-        c[k] = a[i++];
-      }
-    }
-    else{
-      c[k] = b[j++];
-    }
-  }
-}
-/*
-void printArray(int *a, int size){
-  for(int i=0; i<size; i++){
-    printf("%d ",a[i]);
-  }
-  printf("\n");
-}
-void findBreaks(int *a,int size){
-  for(int i=1; i<size; i++){
-//    printf("%d ",i);
-    if(a[i-1] > a[i]){
-      printf("Break at %d\n",i);
-    }
-  }
-  printArray(a,size);
-  printf("\n");
-}
-
-*/
 int main(int argc, char** argv) {
 	
   
@@ -150,7 +102,7 @@ int main(int argc, char** argv) {
     sorted = malloc(n * sizeof(int));
   }
   MPI_Gather(subArray, size, MPI_INT, sorted, size, MPI_INT, 0, MPI_COMM_WORLD);
-	
+
   // Make the final mergeSort call 
   if(worldRank == 0) {
     int *otherArray = malloc(n * sizeof(int));
@@ -165,7 +117,7 @@ int main(int argc, char** argv) {
         char newFilePath[50];
         sprintf(newFilePath,"res_np%d_%d.txt",worldSize,suffix);
         if(!exists(newFilePath)){
-          printf("new path = %s",newFilePath);
+          printf("new path = %s\n",newFilePath);
           filePath = newFilePath;
           break;
         }

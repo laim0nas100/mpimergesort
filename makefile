@@ -16,5 +16,14 @@ all: clean
 run: all
 	mpirun -np $(np) $(exe) $(size) $(print)
 
-		
+
+	
+cleanSingle:
+	rm -f exeSingle
+
+single: cleanSingle
+	gcc -o exeSingle mergeSortSingle.c
+
+runSingle:single 
+	./exeSingle 10
 	
