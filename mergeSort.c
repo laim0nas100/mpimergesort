@@ -86,13 +86,12 @@ void mergeSortBreaks(int *a, int *b, int l, int r) {
     for(;i < r-1;i++){
       if(a[i]>a[i+1]){//break found
         m = i;
+        
+        mergeSortBreaks(a, b, l, m);
+        mergeSortBreaks(a, b, (m + 1), r);
+        merge(a, b, l, m, r);
         break;
       }
-    }
-    if(m > 0){
-      mergeSortBreaks(a, b, l, m);
-      mergeSortBreaks(a, b, (m + 1), r);
-      merge(a, b, l, m, r);
     }
   }
   
@@ -119,7 +118,7 @@ int mpiSort(int worldRank,int subarraySize, int* originalArray, int* sorted){
   // Perform the mergesort on each process 
   int *tmpArray = malloc(subarraySize * sizeof(int));
   mergeSortInsertion(subArray, tmpArray, 0, (subarraySize - 1));
-  printf("Finished %d\n",worldRank);
+//  printf("Finished %d\n",worldRank);
   
   // Gather the sorted subarrays into one 
   
