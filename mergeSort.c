@@ -3,7 +3,7 @@
 #include <time.h>
 #include <mpi.h>
 
-
+int fullSize;
 // Merge Function 
 void merge(int *a, int *b, int l, int m, int r) {
 	
@@ -58,19 +58,43 @@ int exists(const char *fname){
     return 0;
 }
 
+
+
+int mpiSort(int worldRank,int subarraySize, int* originalArray, int* sorted){
+  
+  // Send each subarray to each process 
+  int *subArray = malloc(subarraySize * sizeof(int));
+  MPI_Scatter(originalArray, subarraySize, MPI_INT, subArray, subarraySize, MPI_INT, 0, MPI_COMM_WORLD);
+  
+  
+  // Perform the mergesort on each process 
+  int *tmpArray = malloc(subarraySize * sizeof(int));
+  mergeSort(subArray, tmpArray, 0, (subarraySize - 1));
+  printf("Finished %d\n",worldRank);
+  
+  // Gather the sorted subarrays into one 
+  
+  MPI_Gather(subArray, subarraySize, MPI_INT, sorted, subarraySize, MPI_INT, 0, MPI_COMM_WORLD);
+  free(subArray);
+  free(tmpArray);
+  return 0;
+}
+
+
+
 int main(int argc, char** argv) {
 	
   
   // Create and populate the array 
-  int n = atoi(argv[1]);
+  fullSize = atoi(argv[1]);
   int print = atoi(argv[2]);
-  int *originalArray = malloc(n * sizeof(int));
+  int *arrayToSort = malloc(fullSize * sizeof(int));
   float startTime;
   int c;
   srand(time(NULL));
     
-  for(c = 0; c < n; c++) {
-    originalArray[c] = rand() % n;
+  for(c = 0; c < fullSize; c++) {
+    arrayToSort[c] = rand() % fullSize;
   }
 
   // Initialize MPI
@@ -82,31 +106,18 @@ int main(int argc, char** argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
 
   // Divide the array in equal-sized chunks 
-  int size = n/worldSize;
-
-  // Send each subarray to each process 
-  int *subArray = malloc(size * sizeof(int));
-  MPI_Scatter(originalArray, size, MPI_INT, subArray, size, MPI_INT, 0, MPI_COMM_WORLD);
-  if(worldRank == 0){
-    startTime = (float)clock()/CLOCKS_PER_SEC;
-  }
-  
-  // Perform the mergesort on each process 
-  int *tmpArray = malloc(size * sizeof(int));
-  mergeSort(subArray, tmpArray, 0, (size - 1));
-  printf("Finished %d\n",worldRank);
-  
-  // Gather the sorted subarrays into one 
+  int size = fullSize/worldSize;
   int *sorted = NULL;
   if(worldRank == 0) {
-    sorted = malloc(n * sizeof(int));
+    sorted = malloc(fullSize * sizeof(int));
+    startTime = (float)clock()/CLOCKS_PER_SEC;
   }
-  MPI_Gather(subArray, size, MPI_INT, sorted, size, MPI_INT, 0, MPI_COMM_WORLD);
-
+  mpiSort(worldRank,size,arrayToSort,sorted);
+  
   // Make the final mergeSort call 
   if(worldRank == 0) {
-    int *otherArray = malloc(n * sizeof(int));
-    mergeSort(sorted, otherArray, 0, (n - 1));
+    int *otherArray = malloc(fullSize * sizeof(int));
+    mergeSort(sorted, otherArray, 0, (fullSize - 1));
 
     if(worldRank == 0){
       float timeElapsed = (float)clock()/CLOCKS_PER_SEC - startTime;
@@ -126,10 +137,10 @@ int main(int argc, char** argv) {
       }
       FILE *f = fopen(filePath,"w");
       fprintf(f,"Number of proccesses: %d\n",worldSize);
-      fprintf(f,"Size: %d\n",n);
+      fprintf(f,"Size: %d\n",fullSize);
       fprintf(f,"Time: %f \n\n",timeElapsed);
       if(print){
-        for(c = 0; c < n; c++) {
+        for(c = 0; c < fullSize; c++) {
           fprintf(f,"%d\n",sorted[c]);
         }
       }
@@ -142,9 +153,8 @@ int main(int argc, char** argv) {
   }
 	
   // Clean up rest 
-  free(originalArray);
-  free(subArray);
-  free(tmpArray);
+  free(arrayToSort);
+  
 
   // Finalize MPI 
   MPI_Barrier(MPI_COMM_WORLD);
