@@ -4,7 +4,6 @@
 #include <mpi.h>
 
 int fullSize;
-int slice;
 // Merge Function 
 void merge(int *a, int *b, int l, int m, int r) {
 	
@@ -51,7 +50,7 @@ void insertionSort (int a[],int start, int end){
     }
 }
 
-// Recursive Merge Function
+// Recursive Merge Function with Insertion in small cases
 void mergeSortInsertion(int *a, int *b, int l, int r) {
   int m;
   if(r - l <= 16){
@@ -80,22 +79,16 @@ void mergeSort(int *a, int *b, int l, int r) {
   
 } 
 void mergeSortBreaks(int *a, int *b, int l, int r) {
-  int m=-1;
-  if(r>l){
-    int i = l;
-    for(;i < r-1;i++){
-      if(a[i]>a[i+1]){//break found
-        m = i;
-        
-        mergeSortBreaks(a, b, l, m);
-        mergeSortBreaks(a, b, (m + 1), r);
-        merge(a, b, l, m, r);
-        break;
-      }
+  int i = l;
+  for(;i < r; i++){
+    if(a[i] > a[i+1]){//break found
+      mergeSortBreaks(a, b, (i+1), r);
+      merge(a, b, l, i, r);
+      return;
     }
   }
-  
 }
+
 int exists(const char *fname){
     FILE *file;
     if (file = fopen(fname, "r")){
@@ -118,7 +111,7 @@ int mpiSort(int worldRank,int subarraySize, int* originalArray, int* sorted){
   // Perform the mergesort on each process 
   int *tmpArray = malloc(subarraySize * sizeof(int));
   mergeSortInsertion(subArray, tmpArray, 0, (subarraySize - 1));
-//  printf("Finished %d\n",worldRank);
+  printf("Finished %d\n",worldRank);
   
   // Gather the sorted subarrays into one 
   
@@ -139,7 +132,7 @@ int main(int argc, char** argv) {
   int *arrayToSort = malloc(fullSize * sizeof(int));
   float startTime;
   int c;
-  srand(time(NULL));
+  srand(1337);
     
   for(c = 0; c < fullSize; c++) {
     arrayToSort[c] = rand() % fullSize;
@@ -155,7 +148,6 @@ int main(int argc, char** argv) {
 
   // Divide the array in equal-sized chunks 
   int size = fullSize/worldSize;
-  slice = size-1;
   int *sorted = NULL;
   if(worldRank == 0) {
     sorted = malloc(fullSize * sizeof(int));
@@ -192,14 +184,14 @@ int main(int argc, char** argv) {
       if(print){
         fprintf(f,"%d\n",sorted[0]);
       }
-        for(c = 1; c < fullSize; c++) {
-          if(print){
-            fprintf(f,"%d\n",sorted[c]);
-          }
-          if(sorted[c-1]> sorted[c]){
-            ok = 0;
-          }
+      for(c = 1; c < fullSize; c++) {
+        if(print){
+          fprintf(f,"%d\n",sorted[c]);
         }
+        if(sorted[c-1]> sorted[c]){
+          ok = 0;
+        }
+      }
       printf("ok? %d\n",ok);
       fclose(f);
     }
