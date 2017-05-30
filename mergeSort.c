@@ -40,10 +40,6 @@ void merge(int *a, int *b, int l, int m, int r) {
 
 void insertionSort (int a[],int start, int end){
   int i;
-  if(start <0 || end<0){
-    puts("Negative index");
-    MPI_Abort (MPI_COMM_WORLD, 1);
-  }
   for (i = start; i < end; i++){
       int j, v = a[i];
       for (j = i - 1; j >= start; j--){
@@ -58,7 +54,7 @@ void insertionSort (int a[],int start, int end){
 // Recursive Merge Function
 void mergeSortInsertion(int *a, int *b, int l, int r) {
   int m;
-  if(r - l <= 16 && r > l){
+  if(r - l <= 16){
     insertionSort(a,l,r+1);
   }else 
   if(l < r){
