@@ -1,6 +1,6 @@
 np=1
 size=50000000
-source=mergeSortNew.c
+source=mergeSort.c
 exe=mpiExe
 print=0
 
@@ -25,5 +25,5 @@ single: cleanSingle
 	gcc -o exeSingle mergeSortSingle.c
 
 runSingle:single 
-	./exeSingle 10
+	./exeSingle 32
 	

@@ -40,20 +40,35 @@ void merge(int *a, int *b, int l, int m, int r) {
   printf("\n");
 		
 }
-
+void insertionSort (int a[],int start, int end){
+  int i;
+  for (i = start; i < end; i++){
+      int j, v = a[i];
+      for (j = i - 1; j >= 0; j--){
+        if (a[j] <= v)
+          break;
+	  a[j + 1] = a[j];
+      }
+      a[j + 1] = v;
+    }
+}
 
 
 // Recursive Merge Function
 void mergeSort(int *a, int *b, int l, int r) {
   int m;
   printf("Called %d %d\n",l,r);
-  if(l < r) {
+  if(r - l <= 16){
+    printf("Insertion sort\n");
+    insertionSort(a,l,r+1);
+  }else{
     m = (l + r)/2;
     
     mergeSort(a, b, l, m);
     mergeSort(a, b, (m + 1), r);
     merge(a, b, l, m, r);
   }
+  
 } 
 int exists(const char *fname){
     FILE *file;
