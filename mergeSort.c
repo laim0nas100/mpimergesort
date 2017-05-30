@@ -79,15 +79,21 @@ void mergeSort(int *a, int *b, int l, int r) {
   }
   
 } 
-
-void mergeSortFinal(int *a, int *b, int l, int r) {
-  int m;
-  if(r - l > slice && r > l){
-    m = (l + r)/2;
-    
-    mergeSortFinal(a, b, l, m);
-    mergeSortFinal(a, b, (m + 1), r);
-    merge(a, b, l, m, r);
+void mergeSortBreaks(int *a, int *b, int l, int r) {
+  int m=-1;
+  if(r>l){
+    int i = l;
+    for(;i < r-1;i++){
+      if(a[i]>a[i+1]){//break found
+        m = i;
+        break;
+      }
+    }
+    if(m > 0){
+      mergeSortBreaks(a, b, l, m);
+      mergeSortBreaks(a, b, (m + 1), r);
+      merge(a, b, l, m, r);
+    }
   }
   
 }
@@ -150,7 +156,7 @@ int main(int argc, char** argv) {
 
   // Divide the array in equal-sized chunks 
   int size = fullSize/worldSize;
-  slice = size;
+  slice = size-1;
   int *sorted = NULL;
   if(worldRank == 0) {
     sorted = malloc(fullSize * sizeof(int));
@@ -161,7 +167,7 @@ int main(int argc, char** argv) {
   // Make the final mergeSort call 
   if(worldRank == 0) {
     int *otherArray = malloc(fullSize * sizeof(int));
-    mergeSortFinal(sorted, otherArray, 0, (fullSize - 1));
+    mergeSortBreaks(sorted, otherArray, 0, (fullSize - 1));
 
     if(worldRank == 0){
       float timeElapsed = (float)clock()/CLOCKS_PER_SEC - startTime;
