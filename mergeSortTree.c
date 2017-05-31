@@ -94,7 +94,7 @@ int main (int argc, char *argv[]){
     
     float end = (float)clock()/CLOCKS_PER_SEC;
     float timeElapsed = end - start;
-    printf ("Start = %.2f\nEnd = %.2f\nElapsed = %.2f\n",start, end, end - start);
+//    printf ("Start = %.2f\nEnd = %.2f\nElapsed = %.2f\n",start, end, end - start);
     
     char* filePath = "result";
     printf("world size %d\n",comm_size);
@@ -185,7 +185,7 @@ int my_topmost_level_mpi (int my_rank){
 void mergesort_parallel_mpi (int a[], int size, int temp[], int level, int my_rank, int max_rank, int tag, MPI_Comm comm){
   int helper_rank = my_rank + pow (2, level);
   if (helper_rank > max_rank){				// no more processes available
-//    printf("Rank %d size %d\n",my_rank,size);  
+    printf("Rank %d size %d\n",my_rank,size);  
     mergesort_serial (a, size, temp);
       
   }

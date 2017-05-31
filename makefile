@@ -1,6 +1,7 @@
-np=1
-size=50000000
+np=3
+size=20000000
 source=mergeSort.c
+tree=mergeSortTree.c
 exe=mpiExe
 print=0
 
@@ -10,13 +11,19 @@ clog:
 clean:
 	rm -f $(exe)
 	rm -f gen
+	
 all: clean
 	mpicc -o $(exe) $(source) -lm
 	gcc -o gen generate.c
+	
 run: all
 	mpirun -np $(np) $(exe) $(size) $(print)
 
-
+compileTree:clean
+	mpicc -o $(exe) $(tree) -lm
+	
+runTree:compileTree
+	mpirun -np $(np) $(exe) $(size) $(print)
 	
 cleanSingle:
 	rm -f exeSingle
